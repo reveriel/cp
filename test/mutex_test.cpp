@@ -21,11 +21,20 @@ int foo() {
   return 0;
 }
 
+/**
+ * Calculates the time it takes to execute (multi thread push to a vector) in
+ * different num of threads.
+ *
+ * @return void
+ *
+ * @throws None
+ */
 int main() {
   std::cout << "size of mutex: " << sizeof(std::mutex) << std::endl;
 
   assert(foo() == 0);
   assert(g_count == 1);
+
 
   const int MAX_THREAD = 12;
   g_vec.reserve(MAX_THREAD * kCOUNT);
@@ -58,11 +67,11 @@ int main() {
     for (auto &t : threads) {
       t.join();
     }
-    std::cout << "multi thread with lock : "
+    std::cout << "multi (" << n_thur + 1 << ") thread with lock : "
               << std::chrono::duration_cast<std::chrono::milliseconds>(
                      std::chrono::system_clock::now() - start)
                      .count()
-              << std::endl;
+              << " ms" << std::endl;
   }
   // tested on my laptop, 2.6 GHz 6-Core Intel Core i7
 

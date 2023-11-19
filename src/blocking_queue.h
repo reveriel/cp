@@ -6,6 +6,8 @@
 
 #include <deque>
 
+#include <iostream>
+
 namespace cp {
 template <typename T> class BlockingQueue {
 public:
@@ -14,13 +16,13 @@ public:
   BlockingQueue &operator=(const BlockingQueue &) = delete;
 
   void put(const T &x) {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     queue_.push_back(x);
     cv_not_empty_.notify_one();
   }
 
   void put(T &&x) {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     queue_.push_back(std::move(x));
     cv_not_empty_.notify_one();
   }
@@ -28,13 +30,24 @@ public:
   T take() {
     std::unique_lock<std::mutex> lock(mutex_);
     // always use a while-loop, due to spurious wakeup
+    try {
     while (queue_.empty()) {
       cv_not_empty_.wait(lock);
     }
+    } catch (const std::system_error &e) {
+      // print more info
+      std::cout << "std::system_error: " << e.what() << std::endl;
+    }
+
     assert(!queue_.empty());
     T front(std::move(queue_.front()));
     queue_.pop_front();
     return front;
+  }
+
+  bool empty() const {
+    std::unique_lock<std::mutex> lock(mutex_);
+    return queue_.empty();
   }
 
   size_t size() const {

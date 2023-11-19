@@ -1,23 +1,25 @@
-#include "../src/blocking_queue.h"
+
+
+#include "../src/bounded_blocking_queue.h"
 #include "../src/countdown_latch.h"
 #include "../src/timestamp.h"
 
-#define _LIBCPP_HAS_THREAD_SAFETY_ANNOTATIONS
 #include <mutex>
 
 #include <thread>
 #include <iostream>
 
+template <typename T> using Queue = cp::BoundedBlockingQueue<T>;
 
 void bench(int num_thread, int num_count) {
   cp::CountDownLatch latch(1);
 
   // master threads put to queue_start, with timestamp
-  cp::BlockingQueue<cp::Timestamp> queue_start;
+  Queue<cp::Timestamp> queue_start(2);
 
   // worker threads consume from queue_start, put to queue_end, with delay
   // worker threads stop when got cp::Timestamp::invalid()
-  cp::BlockingQueue<cp::TimeDifference> queue_end;
+  Queue<cp::TimeDifference> queue_end(2);
 
   for (int i = 0; i < num_thread; i++) {
     std::thread([&latch, &queue_start, &queue_end]() {
@@ -55,3 +57,4 @@ int main() {
     bench(i, 1000 * 1000);
   }
 }
+
