@@ -3,7 +3,7 @@
 #include "../src/bounded_blocking_queue.h"
 #include "../src/countdown_latch.h"
 #include "../src/timestamp.h"
-
+#include <cassert>
 #include <mutex>
 
 #include <thread>
