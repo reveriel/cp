@@ -11,6 +11,7 @@
 
 void bench(int num_thread, int num_count) {
   cp::CountDownLatch latch(1);
+  cp::CountDownLatch end_latch(num_thread);
 
   // master threads put to queue_start, with timestamp
   cp::BlockingQueue<cp::Timestamp> queue_start;
@@ -20,7 +21,7 @@ void bench(int num_thread, int num_count) {
   cp::BlockingQueue<cp::TimeDifference> queue_end;
 
   for (int i = 0; i < num_thread; i++) {
-    std::thread([&latch, &queue_start, &queue_end]() {
+    std::thread([&latch, &end_latch, &queue_start, &queue_end]() {
       latch.wait();
       std::cout << "thread " << std::this_thread::get_id() << " started"
                 << std::endl;
@@ -30,6 +31,8 @@ void bench(int num_thread, int num_count) {
         queue_end.put(cp::Timestamp::now() - start);
         start = queue_start.take();
       }
+
+      end_latch.countDown();
     }).detach();
   }
 
@@ -48,10 +51,13 @@ void bench(int num_thread, int num_count) {
   for (int i = 0; i < num_thread; i++) {
     queue_start.put(cp::Timestamp::invalid());
   }
+
+  // wait untill all threads finish
+  end_latch.wait();
 }
 
 int main() {
-  for (int i = 1; i < 100; i++) {
+  for (int i = 1; i < 10; i++) {
     bench(i, 1000 * 1000);
   }
 }
