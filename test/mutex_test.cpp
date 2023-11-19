@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <vector>
+#include <cassert>
 
 // global vars
 cp::Mutex g_mutex;
