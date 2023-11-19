@@ -14,13 +14,13 @@ private:
 
 public:
   Mutex() : mu_() {}
-  void lock() ACQUIRE(mu_) {
+  void lock()  {
     mu_.lock();
     // the thread id is only set when the mutex is locked
     m_tid = std::this_thread::get_id();
   }
 
-  void unlock() RELEASE(mu_) {
+  void unlock() {
     m_tid = std::thread::id();
     mu_.unlock();
   }

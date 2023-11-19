@@ -48,10 +48,13 @@ void bench(int num_thread, int num_count) {
   for (int i = 0; i < num_thread; i++) {
     queue_start.put(cp::Timestamp::invalid());
   }
+
+  // wait until all finished
+  
 }
 
 int main() {
-  for (int i = 1; i < 100; i++) {
+  for (int i = 1; i < 4; i++) {
     bench(i, 1000 * 1000);
   }
 }

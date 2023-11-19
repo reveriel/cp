@@ -6,6 +6,7 @@
 #include <mutex>
 
 #include <iostream>
+#include <cassert>
 
 namespace cp {
 
