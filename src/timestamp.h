@@ -20,7 +20,11 @@ public:
     std::swap(m_microSecondsSinceEpoch, that.m_microSecondsSinceEpoch);
   }
 
+  // to "epoch_seconds.microseconds"
   std::string toString() const;
+
+  // "yyyymmdd hh:mm:ss.microseconds" if `showMicroseconds` is true,
+  // otherwise "yyyymmdd hh:mm:ss"
   std::string toFormattedString(bool showMicroseconds = true) const;
 
   bool valid() const { return m_microSecondsSinceEpoch > 0; }
@@ -55,10 +59,13 @@ public:
 
   TimeDifference operator-(const Timestamp &rhs);
 
+  // return the current time in microseconds
   static Timestamp now();
   static Timestamp invalid() { return Timestamp(); }
 
   static Timestamp fromUnixTime(time_t t) { return fromUnixTime(t, 0); }
+
+  // convert from Unix time
   static Timestamp fromUnixTime(time_t t, int microseconds) {
     return Timestamp(static_cast<int64_t>(t) * kMicroSecondsPerSecond +
                      microseconds);

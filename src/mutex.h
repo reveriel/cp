@@ -6,27 +6,31 @@
 namespace cp {
 
 // add a thread id to the mutex
-class Mutex {
+class CAPABILITY("mutex") Mutex {
 private:
   std::mutex mu_;
   // the thread id that held the mutex
-  std::thread::id m_tid;
+  std::optional<std::thread::id> tid_;
 
 public:
+  std::optional<std::thread::id> get_tid() { return tid_; }
+  std::mutex &get() { return mu_; }
+
   Mutex() : mu_() {}
-  void lock()  {
+
+   void lock() ACQUIRE(mu_) {
     mu_.lock();
     // the thread id is only set when the mutex is locked
-    m_tid = std::this_thread::get_id();
+    tid_ = std::this_thread::get_id();
   }
 
-  void unlock() {
-    m_tid = std::thread::id();
+  void unlock() RELEASE(mu_) {
+    tid_.reset();
     mu_.unlock();
   }
 
   bool is_locked_by_this_thread() {
-    return m_tid == std::this_thread::get_id();
+    return tid_ == std::this_thread::get_id();
   }
 
   bool try_lock() { return mu_.try_lock(); }

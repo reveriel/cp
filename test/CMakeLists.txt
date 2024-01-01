@@ -11,3 +11,5 @@ add_executable(blocking_queue_bench blocking_queue_bench.cpp)
 # address sanitizer
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 add_executable(bounded_blocking_queue_bench bounded_blocking_queue_bench.cpp)
+
+add_executable(async_log_test async_log_test.cpp)

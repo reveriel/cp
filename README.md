@@ -1,23 +1,18 @@
 # cp
 
+A Commentted (Copied) rPc framework of [muduo](https://github.com/muduokun/muduo).
 
 
 # develooped on mac
 
-enable coredump on mac
+Enable coredump on macOS is complicated ( I never success). Linux is recommended.
 
-not surekj
-```bash
-sudo sysctl kern.coredump=1
-sudo sysctl -w kern.corefile=core.%N.%P.%t
-sudo launchctl limit core unlimited
-```
 
 # 1 basic
 
 ## 1.1 condition variable
 
-condition_variable is used with std::mutex, to block one or more threads util a shared variable (the condition), and notifies the condition variable
+condition_variable is used with std::mutex, to block one or more threads util a shared variable (the condition) is satisfied, and notifies the condition variable
 
 usage:
 
@@ -25,7 +20,13 @@ the thread that intends to modify the shared variable must:
 
 1. acquire a mutex
 2. modify the shared variable
-3. call notify_one or notify_all on cv
+   2.1 unlock the mutex
+3. call notify_one or notify_all on cv ( (can be done after releasing the lock))
+
+标准居然说 "can be done after releasing the lock" 这种不确定的说法。。
+
+这种要求调用方严格做这么多步骤, 真的不算好设计，很容易用错啊，而且记不住.
+
 
 the therad that intends to wait on a condition variable must:
 
@@ -35,6 +36,10 @@ the therad that intends to wait on a condition variable must:
 or.
 
 1. use the predicated overload of wait
+
+这里等待方调用了 lock， 却没有显式地调用 unlock, 需要注意。
+
+wait 依赖 unique_lock, 以及 unlock 不是传入的参数，也不灵活。
 
 
 ```cpp
@@ -46,7 +51,7 @@ bool processed = false;
 
 void worker_thread() {
     // wait util main() sends data
-    std::unique_lock lk(m);
+    std::unique_lock lk(m); // this line locks the mutex
     cv.wait(lk, []{ return ready;});
 
     // after the wait, we own the lock.
@@ -91,18 +96,21 @@ Note:
 
 I've tried not following the doc, but it still works. Maybe I'll know why after I implement my pthread.
 
+为什么这么麻烦？ cv 这个 api 感觉还是太底层太复杂了.
+
 # 1.2 blocking queue
+
+Easy, one condition variable
+
+good chance to use what you just learned.
 
 # 1.3 countdown latch
 
+Easy. one condidtion variable
 
-# 1.4 barrier
+It's important to see the test code.
 
+# 1.4. logging
 
-
-
-# 1. logging
-
-depends on blocking queue
-
+the first a application
 
