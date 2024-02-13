@@ -2,10 +2,10 @@
 
 A Commentted (Copied) rPc framework of [muduo](https://github.com/muduokun/muduo).
 
+But
 
-# develooped on mac
-
-Enable coredump on macOS is complicated ( I never success). Linux is recommended.
+* use c++11 instead of c++98
+* commentted. code without comment is unfinished code.
 
 
 # 1 basic
@@ -27,12 +27,12 @@ the thread that intends to modify the shared variable must:
 
 这种要求调用方严格做这么多步骤, 真的不算好设计，很容易用错啊，而且记不住.
 
-
-the therad that intends to wait on a condition variable must:
+The Thread that intends to wait on a condition variable must:
 
 1. acquire the mutex
 2. while (condition is not satisfied)
     2.1. call wait, wait_for, or wait_until, on cv. (atomically release the mutex, suspend until notified or timeout, reacquire the mutex)
+
 or.
 
 1. use the predicated overload of wait
@@ -40,7 +40,6 @@ or.
 这里等待方调用了 lock， 却没有显式地调用 unlock, 需要注意。
 
 wait 依赖 unique_lock, 以及 unlock 不是传入的参数，也不灵活。
-
 
 ```cpp
 std::mutex m;
@@ -98,19 +97,20 @@ I've tried not following the doc, but it still works. Maybe I'll know why after 
 
 为什么这么麻烦？ cv 这个 api 感觉还是太底层太复杂了.
 
-# 1.2 blocking queue
+## 1.2 blocking queue
 
 Easy, one condition variable
 
 good chance to use what you just learned.
 
-# 1.3 countdown latch
+## 1.3 countdown latch
 
 Easy. one condidtion variable
 
 It's important to see the test code.
 
-# 1.4. logging
+## 1.4. logging
 
-the first a application
+* LogStream implements std::ostream. format the log message and write to a size-fixed buffer.
+  
 

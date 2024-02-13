@@ -29,7 +29,7 @@ void AsyncLogging::append(const char *logline, int len) {
 
 void AsyncLogging::threadFunc() {
   assert(running_);
-  latch_.countDown(); // wait until constructor , why ?
+  latch_.countDown(); // wait until constructor
   LogFile output(basename_, rolllSize_, false);
   BufferPtr newBuffer1(new Buffer);
   BufferPtr newBuffer2(new Buffer);

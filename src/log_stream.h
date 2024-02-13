@@ -1,48 +1,26 @@
 #pragma once
 
-#include <sstream>
+#include "noncopyable.h"
+#include <stddef.h>
+#include <string>
+
 namespace cp {
 
-// when write to LogStream, write to internal buffer
-class LogStream {
-public:
-  LogStream() : buffer_(1024, '\0'), ss_(buffer_) {}
-
-  LogStream &operator=(const LogStream &) = delete;
-  LogStream(const LogStream &) = delete;
-
-  // if the buffer is full, stop wrting
-  template <typename T> LogStream &operator<<(const T &pf) {
-    if (ss_.str().size() < buffer_.size()) {
-      ss_ << pf;
-    }
-    return *this;
-  }
-
-private:
-  std::string buffer_;
-  std::ostringstream ss_;
-};
-
-
-namespace detail
-{
+namespace detail {
 
 const int kSmallBuffer = 4000;
 const int kLargeBuffer = 4000 * 1000;
 
-// A fix-sized buffer on the stack
-template <int SIZE>
-class FixedBuffer {
-  public:
+// A fix-sized buffer
+template <int SIZE> class FixedBuffer {
+public:
   FixedBuffer() : cur_(data_) {
   }
-  ~FixedBuffer(){
+  ~FixedBuffer() {}
 
-  }
-
-  void append(const char * buf, size_t len) {
-    if (remaining() > len) {
+  // append `len` bytes to buffer, if buffer is full, stop this appending
+  void append(const char *buf, size_t len) {
+    if (static_cast<size_t>(avail()) > len) {
       memcpy(cur_, buf, len);
       cur_ += len;
     }
@@ -72,10 +50,50 @@ class FixedBuffer {
 
 private:
   char data_[SIZE];
-  char * cur_;
+  char *cur_;
 };
 
-}
+} // namespace detail
 
+// When wrting to LogStream, write to the internal buffer.
+// If the buffer is full, this write operation will be ignored.
+class LogStream : noncopyable {
+public:
+  using Buffer = detail::FixedBuffer<detail::kSmallBuffer>;
+  LogStream() {}
+  //
+  LogStream &operator<<(bool v);
+  LogStream &operator<<(short);
+  LogStream &operator<<(unsigned short);
+  LogStream &operator<<(int);
+  LogStream &operator<<(unsigned int);
+  LogStream &operator<<(long);
+  LogStream &operator<<(unsigned long);
+  LogStream &operator<<(long long);
+  LogStream &operator<<(unsigned long long);
+  LogStream &operator<<(float v);
+  LogStream &operator<<(double v);
+  LogStream &operator<<(char v);
+  LogStream &operator<<(const char *str);
+  LogStream &operator<<(const unsigned char *str);
+  LogStream &operator<<(const std::string &str);
+  LogStream &operator<<(const Buffer &buffer);
+
+
+  // append `len` bytes to buffer, if buffer is full, stop this appending
+  void append(const char *data, size_t len) { buffer_.append(data, len); }
+
+  // return the internal buffer
+  const Buffer &buffer() const { return buffer_; }
+
+  void reset() { buffer_.reset(); }
+
+private:
+  Buffer buffer_;
+
+  static const int kMaxNumericSize = 48;
+  static void staticCheck();
+  template <typename T> void formatInteger(T);
+};
 
 } // namespace cp

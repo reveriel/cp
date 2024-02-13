@@ -3,6 +3,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include "file_util.h"
 
 namespace cp {
 namespace fileutil {
@@ -53,6 +54,7 @@ private:
   time_t startOfPeriod_; // last roll time, round to `kRollPerSeconds_`
   time_t lastRoll_;
   time_t lastFlush_;
+  // a buffered file stream for output 
   std::unique_ptr<fileutil::AppendFile> file_;
 
   const static int kRollPerSeconds_ = 60 * 60 * 24; // 1 day
