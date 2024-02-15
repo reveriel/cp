@@ -39,7 +39,7 @@ void bench(bool longLog) {
 
 int main() {
 
-  std::string log_file = "a.log";
+  std::string log_file = "async_log";
 
   size_t roll_size = 1024 * 1024 * 10; // 10 MB
   cp::AsyncLogging log(log_file, roll_size);
