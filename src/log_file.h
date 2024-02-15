@@ -1,9 +1,9 @@
 #pragma once
 
+#include "file_util.h"
 #include <memory>
 #include <mutex>
 #include <string>
-#include "file_util.h"
 
 namespace cp {
 namespace fileutil {
@@ -25,8 +25,8 @@ public:
   // - `flush_interval`: flush interval in seconds.
   // - `check_every_n`: check flush interval every n times of `append()`
   LogFile(const std::string &basename, size_t roll_size,
-          bool thread_safe = true,
-          int flush_interval = 3, int check_every_n = 1024);
+          bool thread_safe = true, int flush_interval = 3,
+          int check_every_n = 1024);
   ~LogFile() {}
 
   void append(const char *logline, size_t len);
@@ -54,7 +54,7 @@ private:
   time_t startOfPeriod_; // last roll time, round to `kRollPerSeconds_`
   time_t lastRoll_;
   time_t lastFlush_;
-  // a buffered file stream for output 
+  // a buffered file stream for output
   std::unique_ptr<fileutil::AppendFile> file_;
 
   const static int kRollPerSeconds_ = 60 * 60 * 24; // 1 day

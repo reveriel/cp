@@ -59,8 +59,11 @@ public:
 
   static void setLogLevel(LogLevel level);
 
-  using OutputFunc = void (*)(const char* msg, va_list al);
+  using OutputFunc = void (*)(const char* msg, int len);
   using FlushFunc = void (*)();
+
+  static void setOutput(OutputFunc);
+  static void setFlush(FlushFunc);
 
   LogStream &stream() { return impl_.stream_; }
 
@@ -71,14 +74,10 @@ private:
     void formatTime();
     void finish();
     Timestamp time_;
-
     LogStream stream_;
-
     LogLevel level_;
-
     int line_;
-
-    SourceFile source_file_;
+    SourceFile basename_;
   };
 
   Impl impl_;
@@ -97,18 +96,21 @@ private:
   Logger::LogLevel level_;
 };
 
-#define LOG_TRACE if (cp::Logger::LogLevel() >= cp::Logger::TRACE) \
-cp::Logger(__FILE__, __LINE__, cp::Logger::TRACE, __func__).stream()
+#define LOG_TRACE                                                              \
+  if (cp::Logger::LogLevel() <= cp::Logger::TRACE)                             \
+  cp::Logger(__FILE__, __LINE__, cp::Logger::TRACE, __func__).stream()
 
-#define LOG_DEBUG if (cp::Logger::LogLevel() >= cp::Logger::DEBUG) \
-cp::Logger(__FILE__, __LINE__, cp::Logger::DEBUG, __func__).stream()
+#define LOG_DEBUG                                                              \
+  if (cp::Logger::LogLevel() <= cp::Logger::DEBUG)                             \
+  cp::Logger(__FILE__, __LINE__, cp::Logger::DEBUG, __func__).stream()
 
-#define LOG_INFO if (cp::Logger::LogLevel() >= cp::Logger::INFO) \
-cp::Logger(__FILE__, __LINE__).stream()
+#define LOG_INFO                                                               \
+  if (cp::Logger::LogLevel() <= cp::Logger::INFO)                              \
+  cp::Logger(__FILE__, __LINE__).stream()
+
 #define LOG_WARN cp::Logger(__FILE__, __LINE__, cp::Logger::WARN).stream()
 #define LOG_ERROR cp::Logger(__FILE__, __LINE__, cp::Logger::ERROR).stream()
 #define LOG_FATAL cp::Logger(__FILE__, __LINE__, cp::Logger::FATAL).stream()
-
 
 template <typename T, int LEVEL>
 LogLevelHelper<LEVEL> operator<<(LogLevelHelper<LEVEL> &log, const T &value) {

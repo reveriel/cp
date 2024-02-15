@@ -1,6 +1,7 @@
 #include "log_file.h"
 #include "file_util.h"
 #include "process_info.h"
+#include <time.h>
 
 namespace cp {
 
@@ -34,9 +35,13 @@ std::string LogFile::getLogFileName(const std::string &basename, time_t *now) {
   // space will be used.
   std::string filename;
   filename.reserve(basename.size() + 64);
+  filename = basename;
 
   char buf[32];
-  strftime(buf, sizeof(buf), "%Y%m%d-%H%M%S", localtime(now));
+  struct tm tm;
+  *now = time(NULL);
+  gmtime_r(now, &tm);
+  strftime(buf, sizeof(buf), ".%Y%m%d-%H%M%S", &tm);
   filename += buf;
   filename += ".";
   filename += process_info::hostname();

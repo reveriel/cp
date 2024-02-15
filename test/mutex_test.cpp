@@ -13,7 +13,7 @@ const int kCOUNT = 1000 * 1000;
 std::vector<int> g_vec;
 
 int foo() {
-  std::lock_guard<cp::Mutex> lock(g_mutex);
+  std::scoped_lock<cp::Mutex> lock(g_mutex);
   if (!g_mutex.is_locked_by_this_thread()) {
     std::cerr << "FAIL: mutex is not locked by this thread" << std::endl;
     return -1;
@@ -59,7 +59,7 @@ int main() {
     for (int i = 0; i < n_thur; i++) {
       threads.push_back(std::thread([]() {
         for (int i = 0; i < kCOUNT; i++) {
-          std::lock_guard<cp::Mutex> lock(g_mutex);
+          std::scoped_lock<cp::Mutex> lock(g_mutex);
           g_vec.push_back(i);
         }
       }));

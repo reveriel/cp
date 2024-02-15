@@ -31,8 +31,8 @@ void AsyncLogging::threadFunc() {
   assert(running_);
   latch_.countDown(); // wait until constructor
   LogFile output(basename_, rolllSize_, false);
-  BufferPtr newBuffer1(new Buffer);
-  BufferPtr newBuffer2(new Buffer);
+  auto newBuffer1 = std::make_unique<Buffer>();
+  auto newBuffer2 = std::make_unique<Buffer>();
   newBuffer1->bzero();
   newBuffer2->bzero();
   BufferVec buffers_to_write;

@@ -16,7 +16,7 @@ template <int SIZE> class FixedBuffer {
 public:
   FixedBuffer() : cur_(data_) {
   }
-  ~FixedBuffer() {}
+  ~FixedBuffer() = default;
 
   // append `len` bytes to buffer, if buffer is full, stop this appending
   void append(const char *buf, size_t len) {
@@ -57,10 +57,10 @@ private:
 
 // When wrting to LogStream, write to the internal buffer.
 // If the buffer is full, this write operation will be ignored.
-class LogStream : noncopyable {
+class LogStream : public noncopyable {
 public:
   using Buffer = detail::FixedBuffer<detail::kSmallBuffer>;
-  LogStream() {}
+  LogStream() = default;
   //
   LogStream &operator<<(bool v);
   LogStream &operator<<(short);
